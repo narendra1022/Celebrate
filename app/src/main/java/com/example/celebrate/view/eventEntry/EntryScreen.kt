@@ -44,7 +44,7 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EntryScreen(
-    viewModel: DashBoardViewModel = hiltViewModel(),
+    dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
     onEventSaved: () -> Unit
 ) {
     var description by remember { mutableStateOf("") }
@@ -121,7 +121,7 @@ fun EntryScreen(
                         type = eventType,
                         description = description
                     )
-                    viewModel.addTransaction(card)
+                    dashBoardViewModel.addEvent(card)
                     onEventSaved()
                 } else {
                     scope.launch {
@@ -133,7 +133,7 @@ fun EntryScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                "Save Card",
+                "Save Event",
                 color = Color.Black
             )
         }

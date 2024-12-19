@@ -3,7 +3,7 @@ package com.example.assignment.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flobiz.data.model.Card
-import com.example.flobiz.data.repository.DashBoardRepository
+import com.example.flobiz.data.repository.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,47 +16,52 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashBoardViewModel @Inject constructor(
-    private val repository: DashBoardRepository
+    private val repository: Repository
 ) : ViewModel() {
 
-    private val _transactions = MutableStateFlow<List<Card>>(emptyList())
+    private val _events = MutableStateFlow<List<Card>>(emptyList())
+
+
     private val _filterQuery = MutableStateFlow("")
     val filterQuery: StateFlow<String> = _filterQuery.asStateFlow()
-    val transactions: StateFlow<List<Card>> = combine(
-        _transactions,
+
+    val events: StateFlow<List<Card>> = combine(
+        _events,
         _filterQuery
-    ) { transactions, query ->
-        if (query.isEmpty()) transactions
-        else transactions.filter {
+    ) { events, query ->
+        if (query.isEmpty()) events
+        else events.filter {
             it.description.contains(query, ignoreCase = true)
         }
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     init {
-        fetchAllTransactions()
+        fetchAllEventss()
     }
 
     fun updateFilterQuery(query: String) {
         _filterQuery.value = query
     }
 
-    private fun fetchAllTransactions() {
+    private fun fetchAllEventss() {
         viewModelScope.launch {
-            repository.getAllEvents().collect { transactions ->
-                _transactions.value = transactions
+            repository.getAllEvents().collect {
+                _events.value = it
             }
         }
     }
 
-    fun addTransaction(card: Card) {
+
+
+    fun addEvent(card: Card) {
         viewModelScope.launch {
             repository.addEvent(card)
         }
     }
 
-    fun deleteTransaction(transactionId: String) {
+    fun deleteEvent(transactionId: String) {
         viewModelScope.launch {
-            repository.deleteEvent(transactionId.toLong())  // Assuming ID is a Long in Room
+            repository.deleteEvent(transactionId.toLong())
         }
     }
 }

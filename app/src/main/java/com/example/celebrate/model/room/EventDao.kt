@@ -19,7 +19,13 @@ interface eventDao {
     @Query("SELECT * FROM events WHERE id = :eventId LIMIT 1")
     suspend fun getEventById(eventId: Long): CardEntity?
 
-    @Query("SELECT * FROM events")
+    @Query("SELECT * FROM events order by date desc")
     fun getAllEvents(): Flow<List<CardEntity>>
+
+    @Query("SELECT * FROM events where eventType='BIRTHDAY' order by date desc")
+    fun getAllBirthdays(): Flow<List<CardEntity>>
+
+    @Query("SELECT * FROM events where eventType='ANNIVERSARY' order by date desc")
+    fun getAllAnniversariess(): Flow<List<CardEntity>>
 
 }

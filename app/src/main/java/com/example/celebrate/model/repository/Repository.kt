@@ -1,7 +1,7 @@
 package com.example.flobiz.data.repository
 
-import com.example.assignment.model.room.eventDao
 import com.example.assignment.model.models.CardEntity
+import com.example.assignment.model.room.eventDao
 import com.example.flobiz.data.model.Card
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -9,7 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DashBoardRepository @Inject constructor(
+class Repository @Inject constructor(
     private val eventDao: eventDao
 ) {
 
@@ -30,6 +30,28 @@ class DashBoardRepository @Inject constructor(
     }
 
     fun getAllEvents(): Flow<List<Card>> = eventDao.getAllEvents().map { entities ->
+        entities.map { entity ->
+            Card(
+                id = entity.id.toString(),
+                date = entity.date,
+                type = entity.eventType,
+                description = entity.description
+            )
+        }
+    }
+
+    fun getAllBirthdays(): Flow<List<Card>> = eventDao.getAllBirthdays().map { entities ->
+        entities.map { entity ->
+            Card(
+                id = entity.id.toString(),
+                date = entity.date,
+                type = entity.eventType,
+                description = entity.description
+            )
+        }
+    }
+
+    fun getAllAnniversariess(): Flow<List<Card>> = eventDao.getAllAnniversariess().map { entities ->
         entities.map { entity ->
             Card(
                 id = entity.id.toString(),

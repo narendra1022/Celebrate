@@ -1,10 +1,10 @@
 package com.example.assignment.view.birthday
 
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -13,17 +13,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.assignment.viewmodel.DashBoardViewModel
-import com.example.flobiz.data.model.Card
-import com.example.flobiz.presentation.dashboard.EventItem
+import com.example.celebrate.view.components.EventCard
+import com.example.celebrate.viewmodel.BirthDayViewModel
 import java.util.Date
 
 @Composable
-fun BirthDayScreen(viewModel: DashBoardViewModel = hiltViewModel()) {
-    val allEvents by viewModel.transactions.collectAsState(initial = emptyList())
+fun BirthDayScreen(birthdayViewModel: BirthDayViewModel = hiltViewModel()) {
+    val allEvents by birthdayViewModel.birthdays.collectAsState(initial = emptyList())
     val upcomingEvents = remember(allEvents) {
         allEvents.filter { it.date.after(Date()) }
             .sortedBy { it.date }
@@ -34,33 +36,70 @@ fun BirthDayScreen(viewModel: DashBoardViewModel = hiltViewModel()) {
             .sortedBy { it.date }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Text(
-            text = "Upcoming Events",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(16.dp)
-        )
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(vertical = 8.dp)
+    ) {
+        item {
+            Text(
+                text = "Upcoming Birthdays",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
 
-        Column {
-            upcomingEvents.forEach { card ->
-                EventItem(
-                    card = card,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        if (upcomingEvents.isEmpty()) {
+            item {
+                Text(
+                    text = "No upcoming Birthdays",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.Gray,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentSize(Alignment.Center)
+                )
+            }
+        } else {
+            items(
+                items = upcomingEvents,
+                key = { it.id }
+            ) { event ->
+                EventCard(
+                    card = event,
+                    onDeleteEvent = { birthdayViewModel.deleteEvent(event.id) }
                 )
             }
         }
 
-        Text(
-            text = "All Events",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(16.dp)
-        )
+        item {
+            Text(
+                text = "Recent",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
 
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(remainingEvents) { card ->
-                EventItem(
-                    card = card,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        if (remainingEvents.isEmpty()) {
+            item {
+                Text(
+                    text = "No Recent Birthdays",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Gray,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentSize(Alignment.Center)
+                )
+            }
+        } else {
+            items(
+                items = remainingEvents,
+                key = { it.id }
+            ) { event ->
+                EventCard(
+                    card = event,
+                    onDeleteEvent = { birthdayViewModel.deleteEvent(event.id) }
                 )
             }
         }
